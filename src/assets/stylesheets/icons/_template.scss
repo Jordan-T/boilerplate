@@ -1,0 +1,78 @@
+$echo-icons-font: false !default;
+$echo-icons: false !default;
+
+@mixin baseIcon() {
+  font-family: "<%= fontName %>";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  // speak: none; // only necessary if not using the private unicode range (firstGlyph option)
+  text-decoration: none;
+  text-transform: none;
+}
+
+@function icon-char($filename) {
+  $char: "";
+
+  <% _.each(glyphs, function(glyph) { %>
+  @if $filename == <%= glyph.name %> {
+    $char: "\<%= glyph.codepoint %>";
+  }<% }); %>
+
+  @if($char == "" and $filename != false and $filename != null) {
+    @warn "The icon named '#{$filename}' is not exist !";
+  }
+
+  @return $char;
+}
+
+@mixin iconContent($filename) {
+  $char: icon-char($filename);
+  @if($char != "") {
+    content: $char;
+  }
+}
+
+@mixin icon($filename: false, $insert: before, $extend: true) {
+  @if ($insert == before or $insert == after) {
+    &:#{$insert} {
+      @include icon($filename: $filename, $insert: false, $extend: $extend) {
+        @content;
+      };
+    }
+  }
+  @else {
+    @if $extend == true {
+      @extend %icon;
+    } @else if $extend == false {
+      @include baseIcon();
+    }
+    @include iconContent($filename);
+    @content;
+  }
+}
+
+@if $echo-icons-font == true {
+  @font-face {
+    font-family: "<%= fontName %>";
+    src: url('<%= fontPath %><%= fontName %>.eot?v=<%= fontVersion %>');
+    src: url('<%= fontPath %><%= fontName %>.eot?v=<%= fontVersion %>#iefix') format('eot'),
+         url('<%= fontPath %><%= fontName %>.woff2?v=<%= fontVersion %>') format('woff2'),
+         url('<%= fontPath %><%= fontName %>.woff?v=<%= fontVersion %>') format('woff'),
+         url('<%= fontPath %><%= fontName %>.ttf?v=<%= fontVersion %>') format('truetype'),
+         url('<%= fontPath %><%= fontName %>.svg?v=<%= fontVersion %>#<%= fontName %>') format('svg');
+  }
+}
+
+%icon {
+  @include baseIcon();
+}
+
+@if $echo-icons == true {
+<% _.each(glyphs, function(glyph) { %>.<%= glyph.name %> {
+  @include icon(<%= glyph.name %>);
+}
+<% }); %>
+}

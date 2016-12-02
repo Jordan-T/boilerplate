@@ -1,0 +1,81 @@
+@mixin _visuallyhidden() {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
+}
+@mixin _visuallyhidden-focused() {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
+
+%visuallyhidden {
+  @include _visuallyhidden();
+}
+%visuallyhidden-focused {
+  @include _visuallyhidden-focused();
+}
+
+@mixin visuallyHidden($focusable: false, $extend: true) {
+  @if $extend == true {
+    @extend %visuallyhidden;
+  }
+  @else {
+    @include _visuallyhidden();
+  }
+
+  @if $focusable == true {
+    &:focus {
+      @if $extend == true {
+        @extend %visuallyhidden-focused;
+      }
+      @else {
+        @include _visuallyhidden-focused();
+      }
+    }
+  }
+}
+
+
+
+
+@mixin stroke($width, $color) {
+  $width: $width + 0;
+  $shadow: ();
+  //$i: 0;
+  //$w: 1;
+
+  @for $x from -$width through $width {
+    @for $y from -$width through $width {
+      @if $x != 0 OR $y != 0 {
+        $shadow: append($shadow, #{$x}px #{$y}px 0 $color, comma);
+        //$shadow: #{$shadow}, #{$x}px #{$y}px 0 $color;
+      }
+    }
+  }
+
+  //@while ($i < $width) {
+  //  $i: $i + 1;
+  //  $j: 0;
+  //  $w: $w + 2;
+  //
+  //  @for $r from 0 through $w {
+  //    @for $c from 1 through $w {
+  //      $x: $c - ceil($w / 2);
+  //      $y: $r - ceil($w / 2);
+  //
+  //      $shadow: #{$shadow}, #{$x}px #{$y}px 0 $color;
+  //    }
+  //  }
+  //}
+
+  text-shadow: $shadow;
+}
